@@ -13,7 +13,7 @@
           "PATH": "C:\\msys64\\ucrt64\\bin;C:\\msys64\\usr\\bin;${env:PATH}"
         }
       },
-      "command": "if not exist build (mkdir build && cmake -S . -B build -G \"Unix Makefiles\" -DCMAKE_BUILD_TYPE=Debug) && cmake --build build",
+      "command": "cmake -S . -B build -G \"Unix Makefiles\" -DCMAKE_BUILD_TYPE=Debug && cmake --build build",
       "group": {
         "kind": "build",
         "isDefault": true
@@ -38,6 +38,23 @@
       "dependsOn": "Build Debug",
       "problemMatcher": [],
       "detail": "Run MockedMultimediaFeature.exe"
+    },
+    {
+      "label": "Clean",
+      "type": "shell",
+      "options": {
+        "shell": {
+          "executable": "cmd.exe",
+          "args": ["/d", "/c"]
+        },
+        "env": {
+          "PATH": "C:\\msys64\\ucrt64\\bin;C:\\msys64\\usr\\bin;${env:PATH}"
+        }
+      },
+      "command": "if exist build (rmdir /s /q build && echo Build folder cleaned.) else (echo Nothing to clean.)",
+      "group": "build",
+      "problemMatcher": [],
+      "detail": "Delete build directory"
     }
   ]
 }
