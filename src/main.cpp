@@ -5,6 +5,7 @@
 int main() {
     
     Frame f(1920, 1080, RGB);
+    
     std::cout << "Frame created with width: " << f.width() 
               << ", height: " << f.height() 
               << ", format: " << (f.format() == RGB ? "RGB" : "YUV420P") 

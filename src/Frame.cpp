@@ -16,13 +16,10 @@ Frame::Frame(int width, int height, PixelFormat format)
       height_(height), 
       format_(format), 
       size_(compute_size(width, height, format)),
-      data_(new uint8_t[size_])
+      data_(std::make_unique<uint8_t[]>(size_))
 {
     // member initializer list above is the C++ way to initialize members
     // prefer it over assignment in the constructor body
 }
 
-Frame::~Frame()
-{
-    delete[] data_;
-}
+// No destructor needed — unique_ptr cleans up automatically
