@@ -30,9 +30,9 @@ class Frame
 
         // Fields of the frame
         private:
-        std::unique_ptr<uint8_t[]> data_;
         int         width_;
         int         height_;
         PixelFormat format_;
         size_t      size_;
+        std::unique_ptr<uint8_t[]> data_;
 };
