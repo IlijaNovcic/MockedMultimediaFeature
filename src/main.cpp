@@ -1,6 +1,8 @@
 #include <iostream>
 #include <vector>
 #include "Frame.hpp"
+#include "filters/BlurFilter.hpp"
+#include "filters/BrightnessFilter.hpp"
 
 // Read-only — const reference, no copy
 void print_frame_info(const Frame& frame)
@@ -11,27 +13,18 @@ void print_frame_info(const Frame& frame)
               << ", size: " << frame.size() << " bytes" << std::endl;
 }
 
-// Modifies the frame — non-const reference
-void clear_frame(Frame& frame)
-{
-    for(size_t i = 0; i < frame.size(); ++i)
-    {
-        frame.data()[i] = 0; // Clear the frame data
-    }
-}
-
-// Returns a frame — by value (we'll optimize with move semantics in Topic 7)
-Frame make_test_frame(int width, int height) {
-    return Frame(width, height, PixelFormat::RGB);
-}
-
 int main() {
     
-    Frame f = make_test_frame(1920, 1080);
-    
+    Frame f = Frame(1920, 1080, RGB); // create a frame
+    std::vector<std::unique_ptr<PipelineStage>> pipeline;
+    pipeline.push_back(std::make_unique<BlurFilter>(3)); // add blur filter
+    pipeline.push_back(std::make_unique<BrightnessFilter>(1.2f)); // add brightness filter
+
     print_frame_info(f);   // no copy — const ref
-    clear_frame(f);        // modifies f directly — ref
-    print_frame_info(f);   // verify it still works
+
+    for (auto& stage : pipeline) {
+        stage->process(f); // process in-place, no copy
+    }
 
     return 0;
 }

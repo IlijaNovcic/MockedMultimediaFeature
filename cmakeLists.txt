@@ -6,6 +6,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_executable(MockedMultimediaFeature 
 src/main.cpp
-src/Frame.cpp)
+src/Frame.cpp
+src/filters/BlurFilter.cpp
+src/filters/BrightnessFilter.cpp)
 
+target_include_directories(MockedMultimediaFeature PRIVATE src)
 target_compile_options(MockedMultimediaFeature PRIVATE -Wall -Wextra -Wreorder)
