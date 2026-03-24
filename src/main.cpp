@@ -5,7 +5,7 @@
 #include "filters/BrightnessFilter.hpp"
 
 // Read-only — const reference, no copy
-void print_frame_info(const Frame& frame)
+void print_frame_info(const Frame8& frame)
 {
     std::cout << "Frame created with width: " << frame.width() 
               << ", height: " << frame.height() 
@@ -15,16 +15,21 @@ void print_frame_info(const Frame& frame)
 
 int main() {
     
-    Frame f = Frame(1920, 1080, RGB); // create a frame
-    std::vector<std::unique_ptr<PipelineStage>> pipeline;
-    pipeline.push_back(std::make_unique<BlurFilter>(3)); // add blur filter
-    pipeline.push_back(std::make_unique<BrightnessFilter>(1.2f)); // add brightness filter
+    Frame8 f8(1920, 1080, RGB); // create a frame
+    FrameF hdr(1920, 1080, RGB); // create another frame
 
-    print_frame_info(f);   // no copy — const ref
+    std::vector<std::unique_ptr<PipelineStage<uint8_t>>> pipeline;
+    pipeline.push_back(std::make_unique<BlurFilter<uint8_t>>(3)); // add blur filter
+    pipeline.push_back(std::make_unique<BrightnessFilter<uint8_t>>(1.2f)); // add brightness filter
+
+    print_frame_info(f8);   // no copy — const ref
 
     for (auto& stage : pipeline) {
-        stage->process(f); // process in-place, no copy
+        stage->process(f8); // process in-place, no copy
     }
+
+    // See that the HDR frame is much larger due to float data type
+    std::cout << "HDR frame size: " << hdr.size() * sizeof(float) << " bytes" << std::endl;
 
     return 0;
 }
