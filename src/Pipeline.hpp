@@ -21,16 +21,16 @@ private:
 template<typename T>
 void Pipeline<T>::process(Frame<T>& frame)
 {
-    for (auto& stage : stages_) {
+    std::for_each(stages_.begin(), stages_.end(), [&frame](const auto& stage) {
         stage->process(frame); // process in-place, no copy
-    }
+    });
 }
 
 template<typename T>
 void Pipeline<T>::print_stages() const
 {
     std::cout << "Pipeline stages: \n";
-    for (const auto& stage : stages_) {
+    std::for_each(stages_.begin(), stages_.end(), [](const auto& stage) {
         std::cout << " - " << stage->name() << "\n";
-    }
+    });
 }
