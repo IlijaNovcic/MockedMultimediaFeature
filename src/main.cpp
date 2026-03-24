@@ -1,8 +1,10 @@
 #include <iostream>
 #include <vector>
 #include "Frame.hpp"
+#include <memory>  // needed for std::unique_ptr and std::make_unique
 #include "filters/BlurFilter.hpp"
 #include "filters/BrightnessFilter.hpp"
+#include "filters/InvertFilter.hpp"
 
 // Read-only — const reference, no copy
 void print_frame_info(const Frame8& frame)
@@ -18,9 +20,12 @@ int main() {
     Frame8 f8(1920, 1080, RGB); // create a frame
     FrameF hdr(1920, 1080, RGB); // create another frame
 
+    // Print frame data pixels
+
     std::vector<std::unique_ptr<PipelineStage<uint8_t>>> pipeline;
     pipeline.push_back(std::make_unique<BlurFilter<uint8_t>>(3)); // add blur filter
     pipeline.push_back(std::make_unique<BrightnessFilter<uint8_t>>(1.2f)); // add brightness filter
+    pipeline.push_back(std::make_unique<InvertFilter<uint8_t>>()); // add invert filter
 
     print_frame_info(f8);   // no copy — const ref
 
