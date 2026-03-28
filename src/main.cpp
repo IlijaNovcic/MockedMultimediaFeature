@@ -16,9 +16,15 @@ void print_frame_info(const Frame8& frame)
               << ", size: " << frame.size() << " bytes" << std::endl;
 }
 
+Frame8 make_frame(int width, int height, PixelFormat format)
+{
+    return Frame8(width, height, format); // Return by value — relies on move semantics, no copy
+}
+
 int main() {
     
-    Frame8 f8(1920, 1080, RGB); // create a frame
+    Frame8 f8 = make_frame(1920, 1080, RGB); // create a frame
+    Frame8 f8_new = std::move(f8); // move the frame, f8 is now empty (moved-from state)
     FrameF hdr(1920, 1080, RGB); // create another frame
     Pipeline<uint8_t> pipeline; // create a processing pipeline
 
@@ -27,11 +33,11 @@ int main() {
     pipeline.add_stage(std::make_unique<BrightnessFilter<uint8_t>>(1.2f)); // add brightness filter
     pipeline.add_stage(std::make_unique<InvertFilter<uint8_t>>()); // add invert filter
 
-    print_frame_info(f8);   // no copy — const ref
+    print_frame_info(f8_new);   // no copy — const ref
 
     // See that the HDR frame is much larger due to float data type
     std::cout << "HDR frame size: " << hdr.size() * sizeof(float) << " bytes" << std::endl;
-    pipeline.process(f8); // process the frame through the pipeline
+    pipeline.process(f8_new); // process the frame through the pipeline
     pipeline.print_stages(); // print all stage names
 
     return 0;

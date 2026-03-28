@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <cstddef>
 #include <memory>
+#include <stdexcept>
 
 // Format of the pixel data in the frame.
 enum PixelFormat
@@ -27,6 +28,31 @@ class Frame
             // prefer it over assignment in the constructor body
         }
 
+        // Move constructor 
+        Frame(Frame&& other) noexcept
+            : width_(other.width_)
+            , height_(other.height_)
+            , format_(other.format_)
+            , size_(other.size_)
+            , data_(std::move(other.data_)) // move ownership of the data
+        {
+            // other.data_ is now null, no copy of pixel data occurred
+        }
+
+        // Move assignment operator
+        Frame& operator=(Frame&& other) noexcept
+        {
+            if (this != &other) // protect against self-assignment
+            {
+                width_ = other.width_;
+                height_ = other.height_;
+                format_ = other.format_;
+                size_ = other.size_;
+                data_ = std::move(other.data_); // move ownership of the data
+            }
+            return *this;
+        }
+
         // No need to declare ~Frame() anymore — unique_ptr handles cleanup
 
         // Getters - Accessors for frame properties
@@ -38,17 +64,17 @@ class Frame
         T*       data()       { return data_.get(); }
         const T* data() const { return data_.get(); }
 
+        static size_t compute_size(int width, int height, PixelFormat format)
+        {
+            switch (format)
+            {
+                case RGB: return width * height * 3; // 3 bytes per pixel
+                case YUV420P: return width * height + (width / 2) * (height / 2) * 2; // Y plane + U and V planes
+                default: throw std::invalid_argument("Unsupported pixel format");
+            }
+        }
         // Fields of the frame
         private:
-            static size_t compute_size(int width, int height, PixelFormat format)
-            {
-                switch (format)
-                {
-                    case RGB: return width * height * 3; // 3 bytes per pixel
-                    case YUV420P: return width * height + (width / 2) * (height / 2) * 2; // Y plane + U and V planes
-                    default: throw std::invalid_argument("Unsupported pixel format");
-                }
-            }
         int         width_;
         int         height_;
         PixelFormat format_;
