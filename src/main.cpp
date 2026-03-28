@@ -1,10 +1,9 @@
 #include <iostream>
 #include <vector>
-#include "Frame.hpp"
+#include <algorithm>
 #include <memory>  // needed for std::unique_ptr and std::make_unique
+#include "Frame.hpp"
 #include "filters/BlurFilter.hpp"
-#include "filters/BrightnessFilter.hpp"
-#include "filters/InvertFilter.hpp"
 #include "filters/LambdaFilter.hpp"
 #include "Pipeline.hpp"
 
@@ -28,15 +27,16 @@ int main() {
     Frame8 f8_new = std::move(f8); // move the frame, f8 is now empty (moved-from state)
     FrameF hdr(1920, 1080, RGB); // create another frame
     Pipeline<uint8_t> pipeline; // create a processing pipeline
+    float brightness_factor = 1.5f; // example factor to brighten the image
 
     // Print frame data pixels
     pipeline.add_stage(std::make_unique<BlurFilter<uint8_t>>(3)); // add blur filter
-    pipeline.add_stage(std::make_unique<LambdaFilter<uint8_t>>([](uint8_t pixel) -> uint8_t {
-                                                                  return pixel > 128 ? 128 : pixel;
-                                                                  })); // add lambda filter to cap pixel values at 128
+    pipeline.add_stage(std::make_unique<LambdaFilter<uint8_t>>([brightness_factor](uint8_t pixel) -> uint8_t {
+                                                                  return static_cast<uint8_t>(std::clamp(static_cast<float>(pixel) * brightness_factor, 0.0f, 255.0f));
+                                                                  }, "Brightness")); // add lambda filter to adjust brightness
     pipeline.add_stage(std::make_unique<LambdaFilter<uint8_t>>([](uint8_t pixel) -> uint8_t {
                                                                   return 255 - pixel;
-                                                                  })); // add invert filter
+                                                                  }, "Invert")); // add invert filter
 
     print_frame_info(f8_new);   // no copy — const ref
 
