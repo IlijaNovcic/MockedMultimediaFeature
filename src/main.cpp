@@ -5,6 +5,7 @@
 #include "filters/BlurFilter.hpp"
 #include "filters/BrightnessFilter.hpp"
 #include "filters/InvertFilter.hpp"
+#include "filters/LambdaFilter.hpp"
 #include "Pipeline.hpp"
 
 // Read-only — const reference, no copy
@@ -30,8 +31,12 @@ int main() {
 
     // Print frame data pixels
     pipeline.add_stage(std::make_unique<BlurFilter<uint8_t>>(3)); // add blur filter
-    pipeline.add_stage(std::make_unique<BrightnessFilter<uint8_t>>(1.2f)); // add brightness filter
-    pipeline.add_stage(std::make_unique<InvertFilter<uint8_t>>()); // add invert filter
+    pipeline.add_stage(std::make_unique<LambdaFilter<uint8_t>>([](uint8_t pixel) -> uint8_t {
+                                                                  return pixel > 128 ? 128 : pixel;
+                                                                  })); // add lambda filter to cap pixel values at 128
+    pipeline.add_stage(std::make_unique<LambdaFilter<uint8_t>>([](uint8_t pixel) -> uint8_t {
+                                                                  return 255 - pixel;
+                                                                  })); // add invert filter
 
     print_frame_info(f8_new);   // no copy — const ref
 
