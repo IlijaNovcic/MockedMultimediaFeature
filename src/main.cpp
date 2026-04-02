@@ -54,10 +54,10 @@ int main() {
     // Print frame data pixels
     pipeline.add_stage(std::make_unique<BlurFilter<uint8_t>>(3)); // add blur filter
     pipeline.add_stage(std::make_unique<LambdaFilter<uint8_t>>([brightness_factor](uint8_t pixel) -> uint8_t {
-                                                                  return static_cast<uint8_t>(std::clamp(static_cast<float>(pixel) * brightness_factor, 0.0f, 255.0f));
+                                                                  return static_cast<uint8_t>(std::clamp(static_cast<float>(pixel) * brightness_factor, 0.0f, static_cast<float>(std::numeric_limits<uint8_t>::max())));
                                                                   }, "Brightness")); // add lambda filter to adjust brightness
     pipeline.add_stage(std::make_unique<LambdaFilter<uint8_t>>([](uint8_t pixel) -> uint8_t {
-                                                                  return 255 - pixel;
+                                                                  return std::numeric_limits<uint8_t>::max() - pixel;
                                                                   }, "Invert")); // add invert filter
 
     // Create both producer and consumer threads to demonstrate thread-safe frame processing

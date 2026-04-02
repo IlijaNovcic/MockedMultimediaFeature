@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <memory>
 #include <stdexcept>
+#include <limits>
 
 // Format of the pixel data in the frame.
 enum PixelFormat
@@ -60,27 +61,37 @@ class Frame
         int height() const { return height_; }
         PixelFormat format() const { return format_; }
         size_t size() const { return size_; }
-    
         T*       data()       { return data_.get(); }
         const T* data() const { return data_.get(); }
 
-        static size_t compute_size(int width, int height, PixelFormat format)
+        // Fields of the frame
+        private:
+        int                  width_;
+        int                  height_;
+        PixelFormat          format_;
+        size_t               size_;
+        std::unique_ptr<T[]> data_;
+        // class field — one shared value, same for all Frame objects
+        static constexpr size_t RGB_CHANNELS = 3;
+        
+        static constexpr size_t compute_size(int width, int height, PixelFormat format)
         {
             switch (format)
             {
-                case RGB: return width * height * 3; // 3 bytes per pixel
+                case RGB: return width * height * RGB_CHANNELS; // 3 bytes per pixel
                 case YUV420P: return width * height + (width / 2) * (height / 2) * 2; // Y plane + U and V planes
                 default: throw std::invalid_argument("Unsupported pixel format");
             }
         }
-        // Fields of the frame
-        private:
-        int         width_;
-        int         height_;
-        PixelFormat format_;
-        size_t      size_;
-        std::unique_ptr<T[]> data_;
 };
+
+template<typename T>
+T max_pixel_value() {
+    if constexpr (std::is_floating_point_v<T>)
+        return 1.0f;   // float frames use 0.0-1.0 range
+    else
+        return std::numeric_limits<T>::max();  // integer frames use full range
+}
 
 // Convenient type aliases
 using Frame8  = Frame<uint8_t>;   // standard 8-bit video

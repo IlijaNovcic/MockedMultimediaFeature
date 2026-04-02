@@ -1,5 +1,7 @@
 #pragma once
 #include "PipelineStage.hpp"
+#include <string_view>
+#include <iostream>
 
 template<typename T>
 class BlurFilter : public PipelineStage<T> {
@@ -7,7 +9,7 @@ public:
     explicit BlurFilter(int radius = 1);
 
     void process(Frame<T>& frame) override;
-    const char* name() const override { return "BlurFilter"; }
+    std::string_view name() const override { return "BlurFilter"; }
 
 private:
     int radius_;

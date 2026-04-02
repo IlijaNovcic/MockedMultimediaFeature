@@ -3,22 +3,24 @@
 #include "Frame.hpp"
 #include "PipelineStage.hpp"
 #include <iostream>
+#include <string>
+#include <string_view>
 
 template <typename T>
 class LambdaFilter : public PipelineStage<T>
 {
 public:
-    LambdaFilter(std::function<T(T)> transform, const char *name = "LambdaFilter")
-        : transform_(transform), name_(name)
+    LambdaFilter(std::function<T(T)> transform, std::string name = "LambdaFilter")
+        : transform_(transform), name_(std::move(name))
     {
     }
 
     void process(Frame<T> &frame) override;
-    const char *name() const override { return name_; }
+    std::string_view name() const override { return name_; }
 
 private:
     std::function<T(T)> transform_; // user-provided lambda function for pixel transformation
-    const char *name_;              // optional name for the filter
+    std::string name_;              // optional name for the filter
 };
 
 template <typename T>
