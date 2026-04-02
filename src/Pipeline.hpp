@@ -14,9 +14,12 @@ public:
 
     void process(Frame<T>& frame);
     void print_stages() const;
-
-private:
+    size_t frames_processed() const { return frames_processed_; }
+    // Increment the count of frames processed by this frame (for demonstration)
+    
+    private:
     std::vector<std::unique_ptr<PipelineStage<T>>> stages_;
+    size_t frames_processed_ = 0; // for demonstration, track total frames processed across all stages
 };
 
 template<typename T>
@@ -31,6 +34,8 @@ void Pipeline<T>::process(Frame<T>& frame)
         std::chrono::duration<double, std::milli> stage_time = stage_end - stage_start;
         std::cout << "Stage [" << stage->name() << "] took " << stage_time.count() << " ms\n";
     });
+    
+    frames_processed_++; // for demonstration, track how many stages have processed this frame
     auto end_time = std::chrono::high_resolution_clock::now();
 
     std::chrono::duration<double, std::milli> processing_time = end_time - start_time;

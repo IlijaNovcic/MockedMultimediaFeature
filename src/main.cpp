@@ -68,5 +68,7 @@ int main() {
     producer_thread.join();
     consumer_thread.join();
 
+    std::cout << "Number of frames processed: " << pipeline.frames_processed() << "\n";
+
     return 0;
 }
