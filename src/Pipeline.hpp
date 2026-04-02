@@ -22,10 +22,14 @@ private:
 template<typename T>
 void Pipeline<T>::process(Frame<T>& frame)
 {
-    auto start_time = std::chrono::high_resolution_clock::now();;
+    auto start_time = std::chrono::high_resolution_clock::now();
 
     std::for_each(stages_.begin(), stages_.end(), [&frame](const auto& stage) {
+        auto stage_start = std::chrono::high_resolution_clock::now();
         stage->process(frame); // process in-place, no copy
+        auto stage_end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double, std::milli> stage_time = stage_end - stage_start;
+        std::cout << "Stage [" << stage->name() << "] took " << stage_time.count() << " ms\n";
     });
     auto end_time = std::chrono::high_resolution_clock::now();
 
