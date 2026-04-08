@@ -18,9 +18,9 @@ void print_frame_info(const Frame8& frame)
               << ", size: " << frame.size() << " bytes" << std::endl;
 }
 
-Frame8 make_frame(int width, int height, PixelFormat format)
+Frame8 make_frame(int width, int height, PixelFormat format, FrameMetadata metadata = {})
 {
-    return Frame8(width, height, format); // Return by value — relies on move semantics, no copy
+    return Frame8(width, height, format, metadata); // Return by value — relies on move semantics, no copy
 }
 
 // Make producer thread function to push frames into the queue
@@ -28,7 +28,7 @@ void producer(FrameQueue<uint8_t>& frame_queue)
 {
     for (size_t i = 0; i < 5u; ++i)
     {
-        Frame8 frame = make_frame(1920 / (i + 1), 1080 / (i + 1), RGB); // create frames of decreasing size
+        Frame8 frame = make_frame(1920 / (i + 1), 1080 / (i + 1), RGB, FrameMetadata{i, static_cast<double>(i), "Frame " + std::to_string(i)}); // create frames of decreasing size
         frame_queue.push(std::move(frame)); // move frame into the queue
     }
     frame_queue.finish(); // signal that no more frames will be added
@@ -42,6 +42,7 @@ void consumer(FrameQueue<uint8_t>& frame_queue, Pipeline<uint8_t>& pipeline)
         auto frame = frame_queue.pop();
         if(!frame)
             break;
+        std::cout << "Consumer thread popped a " << frame->metadata().source_name << " (Frame, labeled with number " << frame->metadata().frame_number << ") from the queue.\n";
         pipeline.process(*frame);
     }
 }

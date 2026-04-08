@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <limits>
 #include <cstring>
+#include <string>
 
 // Format of the pixel data in the frame.
 enum PixelFormat
@@ -13,18 +14,27 @@ enum PixelFormat
     YUV420P,
 };
 
+// FrameMetadata struct can be added here if needed in the future, for now we keep it simple with just the Frame class.
+struct FrameMetadata
+{
+    size_t frame_number;
+    double timestamp_ms;
+    std::string source_name;
+};
+
 template<typename T>
 // Represents a video frame with its associated metadata.
 class Frame
 {
     public: 
         // Constructor
-        Frame(int width, int height, PixelFormat format)
+        Frame(int width, int height, PixelFormat format, FrameMetadata metadata = {})
             : width_(width) 
             , height_(height) 
             , format_(format) 
             , size_(compute_size(width, height, format))
             , data_(std::make_unique<T[]>(size_))
+            , metadata_(std::move(metadata))
         {
             // member initializer list above is the C++ way to initialize members
             // prefer it over assignment in the constructor body
@@ -37,6 +47,7 @@ class Frame
             , format_(other.format_)
             , size_(other.size_)
             , data_(std::move(other.data_)) // move ownership of the data
+            , metadata_(std::move(other.metadata_))
         {
             // other.data_ is now null, no copy of pixel data occurred
         }
@@ -51,6 +62,7 @@ class Frame
                 format_ = other.format_;
                 size_ = other.size_;
                 data_ = std::move(other.data_); // move ownership of the data
+                metadata_ = std::move(other.metadata_);
             }
             return *this;
         }
@@ -64,9 +76,11 @@ class Frame
         size_t size() const { return size_; }
         T*       data()       { return data_.get(); }
         const T* data() const { return data_.get(); }
+        const FrameMetadata& metadata() const { return metadata_; }
+
         Frame clone() const
         {
-            Frame copy(width_, height_, format_); // create a new frame with the same properties
+            Frame copy(width_, height_, format_, metadata_); // create a new frame with the same properties
             std::memcpy(copy.data(), data_.get(), size_ * sizeof(T)); // copy pixel data
             return copy; // relies on move semantics, no copy of the frame object itself
         }
@@ -78,6 +92,7 @@ class Frame
         PixelFormat          format_;
         size_t               size_;
         std::unique_ptr<T[]> data_;
+        FrameMetadata        metadata_; // Optional metadata field for future use
         // class field — one shared value, same for all Frame objects
         static constexpr size_t RGB_CHANNELS = 3;
         
