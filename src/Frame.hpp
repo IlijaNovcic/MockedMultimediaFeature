@@ -4,6 +4,7 @@
 #include <memory>
 #include <stdexcept>
 #include <limits>
+#include <cstring>
 
 // Format of the pixel data in the frame.
 enum PixelFormat
@@ -63,6 +64,12 @@ class Frame
         size_t size() const { return size_; }
         T*       data()       { return data_.get(); }
         const T* data() const { return data_.get(); }
+        Frame clone() const
+        {
+            Frame copy(width_, height_, format_); // create a new frame with the same properties
+            std::memcpy(copy.data(), data_.get(), size_ * sizeof(T)); // copy pixel data
+            return copy; // relies on move semantics, no copy of the frame object itself
+        }
 
         // Fields of the frame
         private:

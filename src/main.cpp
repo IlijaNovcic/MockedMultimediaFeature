@@ -50,7 +50,9 @@ int main() {
     Pipeline<uint8_t> pipeline; // create a processing pipeline
     float brightness_factor = 1.5f; // example factor to brighten the image
     FrameQueue<uint8_t> frame_queue; // create a frame queue for thread-safe communication
-    
+    Frame8 frame_1 = make_frame(1920, 1080, RGB); // create a frame using the factory function
+    Frame8 copy_frame = frame_1.clone(); // create a copy of the frame using the clone method
+
     // Print frame data pixels
     pipeline.add_stage(std::make_unique<BlurFilter<uint8_t>>(3)); // add blur filter
     pipeline.add_stage(std::make_unique<LambdaFilter<uint8_t>>([brightness_factor](uint8_t pixel) -> uint8_t {
@@ -70,5 +72,10 @@ int main() {
 
     std::cout << "Number of frames processed: " << pipeline.frames_processed() << "\n";
 
+    print_frame_info(frame_1); // print frame info to demonstrate accessors
+    print_frame_info(copy_frame); // print copied frame info to demonstrate clone worked correctly
+
+    std::cout << "Original frame buffer address: " << (void*)frame_1.data() << "\n";
+    std::cout << "Cloned frame buffer address:   " << (void*)copy_frame.data() << "\n";
     return 0;
 }
