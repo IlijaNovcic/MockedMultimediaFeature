@@ -50,7 +50,7 @@ void consumer(FrameQueue<uint8_t>& frame_queue, Pipeline<uint8_t>& pipeline)
 int main() {
     Pipeline<uint8_t> pipeline; // create a processing pipeline
     float brightness_factor = 1.5f; // example factor to brighten the image
-    FrameQueue<uint8_t> frame_queue; // create a frame queue for thread-safe communication
+    FrameQueue<uint8_t> frame_queue(2); // create a frame queue for thread-safe communication
     Frame8 frame_1 = make_frame(1920, 1080, RGB); // create a frame using the factory function
     Frame8 copy_frame = frame_1.clone(); // create a copy of the frame using the clone method
 
