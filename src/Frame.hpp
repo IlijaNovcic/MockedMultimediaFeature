@@ -98,6 +98,12 @@ class Frame
         
         static constexpr size_t compute_size(int width, int height, PixelFormat format)
         {
+            if(width <= 0 || height <= 0)
+                throw std::invalid_argument("Width and height must be positive integers");
+
+            if(format == YUV420P && (width % 2 != 0 || height % 2 != 0))
+                throw std::invalid_argument("YUV420P format requires even width and height");
+                
             switch (format)
             {
                 case RGB: return width * height * RGB_CHANNELS; // 3 bytes per pixel
