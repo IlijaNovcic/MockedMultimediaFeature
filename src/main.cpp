@@ -5,6 +5,7 @@
 #include "Frame.hpp"
 #include "filters/BlurFilter.hpp"
 #include "filters/LambdaFilter.hpp"
+#include "filters/ThresholdFilter.hpp"
 #include "Pipeline.hpp"
 #include "FrameQueue.hpp"
 #include <thread>
@@ -56,6 +57,7 @@ int main() {
 
     // Print frame data pixels
     pipeline.add_stage(std::make_unique<BlurFilter<uint8_t>>(3)); // add blur filter
+    pipeline.add_stage(std::make_unique<ThresholdFilter<uint8_t>>(128)); // add threshold filter
     pipeline.add_stage(std::make_unique<LambdaFilter<uint8_t>>([brightness_factor](uint8_t pixel) -> uint8_t {
                                                                   return static_cast<uint8_t>(std::clamp(static_cast<float>(pixel) * brightness_factor, 0.0f, static_cast<float>(std::numeric_limits<uint8_t>::max())));
                                                                   }, "Brightness")); // add lambda filter to adjust brightness
