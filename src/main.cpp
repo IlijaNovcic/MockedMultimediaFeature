@@ -78,5 +78,7 @@ int main() {
 
     std::cout << "Original frame buffer address: " << (void*)frame_1.data() << "\n";
     std::cout << "Cloned frame buffer address:   " << (void*)copy_frame.data() << "\n";
+
+    frame_queue.print_stats(); // print statistics about the frame queue usage
     return 0;
 }
